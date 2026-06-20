@@ -24,7 +24,7 @@ flowchart TB
     subgraph Flask["Flask Application"]
         SORT["/api/sort"]
         BENCH["/api/benchmark"]
-        EXEC["execute()"]
+        EXEC["sorting.sort()"]
         MAP["SORTERS"]
         REC["SortRecorder"]
     end
@@ -41,7 +41,10 @@ flowchart TB
 
 ### 역할 분리
 
-- `app.py`: 정렬 알고리즘, 실행 기록, 입력 검증, API 응답
+- `app.py`: HTTP 입력 검증과 API 응답을 담당하는 Flask 어댑터
+- `sorting/algorithms.py`: 웹 프레임워크와 독립적인 6개 정렬 구현
+- `sorting/models.py`: 정렬 결과와 시각화 단계 기록 모델
+- `sorting/registry.py`: 알고리즘 레지스트리와 공개 `sort()` API
 - `templates/index.html`: 화면 구조와 알고리즘 복잡도 표
 - `static/app.js`: 데이터 생성, API 호출, 단계 재생, 성능 차트
 - `static/style.css`: 막대 상태 색상, 레이아웃, 반응형 디자인
@@ -79,9 +82,9 @@ flowchart TB
 - `sorted`: 최종 위치가 확정된 인덱스
 - `message`: 화면 상단에 표시할 현재 연산 설명
 
-### `execute(algorithm, values, record_steps=True)`
+### `sort(values, algorithm="quick", record_steps=False)`
 
-`SORTERS` 딕셔너리에서 알고리즘 함수를 찾고 공통 형식으로 실행합니다. `/api/sort`는 단계를 기록하고, `/api/benchmark`는 실행 시간 왜곡과 메모리 사용을 줄이기 위해 `record_steps=False`로 호출합니다.
+`SORTERS` 딕셔너리에서 알고리즘 함수를 찾고 공통 형식으로 실행합니다. 기본값은 일반 모듈 사용에 적합하도록 단계 기록을 끈 상태입니다. `/api/sort`는 `record_steps=True`로 호출하고, `/api/benchmark`는 실행 시간 왜곡과 메모리 사용을 줄이기 위해 `record_steps=False`로 호출합니다.
 
 ## 4. 알고리즘별 원리와 구현
 
@@ -206,7 +209,7 @@ flowchart TD
 | `merge_sort()` | 분할·병합 기반 정렬 |
 | `quick_sort()` | 피벗 파티션 기반 정렬 |
 | `heap_sort()` | 최대 힙 기반 정렬 |
-| `execute()` | 알고리즘 선택과 공통 실행 처리 |
+| `sorting.sort()` | 입력 복사, 알고리즘 선택과 공통 실행 처리 |
 | `sort_api()` | 입력 검증 후 전체 정렬 단계 반환 |
 | `benchmark_api()` | 데이터 크기별 3회 평균 실행 시간 반환 |
 
@@ -228,7 +231,7 @@ sequenceDiagram
     actor User as 사용자
     participant UI as Browser UI
     participant API as Flask /api/sort
-    participant Engine as execute()
+    participant Engine as sorting.sort()
     participant Sort as 정렬 함수
     participant Recorder as SortRecorder
 
@@ -236,7 +239,7 @@ sequenceDiagram
     User->>UI: 정렬 시작 클릭
     UI->>API: POST algorithm, values
     API->>API: 입력값 검증
-    API->>Engine: execute(algorithm, values)
+    API->>Engine: sort(values, algorithm, record_steps=True)
     Engine->>Sort: 선택한 정렬 함수 실행
     loop 비교 또는 데이터 이동
         Sort->>Recorder: capture(active, sorted, message)

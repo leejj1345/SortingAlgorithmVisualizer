@@ -36,6 +36,31 @@ flowchart LR
 
 정렬 자체는 Python에서 수행합니다. `SortRecorder`가 알고리즘 실행 중 배열 상태와 활성 인덱스, 비교 횟수, 교환/쓰기 횟수를 기록하고, 브라우저는 전달받은 단계들을 순서대로 재생합니다.
 
+## 정렬 모듈 사용법
+
+정렬 엔진은 Flask와 분리된 `sorting` 패키지이므로 다른 Python 프로젝트에서도 바로 사용할 수 있습니다. 입력 데이터는 복사하여 처리하므로 원본은 변경되지 않습니다.
+
+```python
+from sorting import available_algorithms, sort
+
+numbers = [42, 17, 8, 31]
+result = sort(numbers, algorithm="merge")
+
+print(result.values)       # [8, 17, 31, 42]
+print(result.comparisons)  # 값 비교 횟수
+print(result.swaps)        # 교환 또는 배열 쓰기 횟수
+print(numbers)             # [42, 17, 8, 31] — 원본 유지
+print(available_algorithms())
+```
+
+시각화 단계가 필요할 때만 `record_steps=True`를 지정합니다.
+
+```python
+result = sort([3, 1, 2], algorithm="quick", record_steps=True)
+for step in result.steps:
+    print(step["values"], step["message"])
+```
+
 ## 알고리즘 비교
 
 | 알고리즘 | 최선 | 평균 | 최악 | 공간 | 특징 |
@@ -85,7 +110,14 @@ python app.py
 
 ```text
 SortingAlgorithmVisualizer/
-├── app.py                    # Flask API, 정렬 알고리즘, 단계 기록기
+├── app.py                    # Flask 라우팅과 HTTP 입력 검증
+├── sorting/                  # Flask와 독립적인 정렬 패키지
+│   ├── __init__.py           # 외부에 공개하는 패키지 API
+│   ├── algorithms.py         # 6개 정렬 알고리즘 구현
+│   ├── models.py             # 결과 및 시각화 단계 모델
+│   └── registry.py           # 알고리즘 레지스트리와 sort() 함수
+├── tests/
+│   └── test_sorting.py       # 정렬 패키지 단위 테스트
 ├── requirements.txt         # Python 의존성
 ├── templates/
 │   └── index.html            # 메인 화면 템플릿
