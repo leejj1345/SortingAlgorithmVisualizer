@@ -12,12 +12,14 @@
   <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 </head>
 <body>
+  <!-- 상단 브랜드 영역 -->
   <header class="topbar">
     <a class="brand" href="/"><span class="brand-mark">S</span> SORT LAB</a>
     <span class="subtitle">ALGORITHM VISUALIZER</span>
   </header>
 
   <main>
+    <!-- 프로젝트 목적을 소개하는 히어로 영역 -->
     <section class="hero">
       <div>
         <p class="eyebrow">SEE HOW DATA MOVES</p>
@@ -26,6 +28,7 @@
       <p class="hero-copy">여섯 가지 정렬 알고리즘의 움직임을 관찰하고, 연산 횟수와 실제 실행 성능을 비교해 보세요.</p>
     </section>
 
+    <!-- 알고리즘 선택, 애니메이션, 실행 통계를 포함하는 핵심 작업 영역 -->
     <section class="workspace panel">
       <div class="controls">
         <label>ALGORITHM
@@ -46,6 +49,7 @@
         </div>
       </div>
 
+      <!-- JavaScript가 정렬 단계마다 막대 요소를 다시 렌더링합니다. -->
       <div class="visualizer-wrap">
         <div class="status-line"><span id="status">준비</span><span class="legend"><i></i> 비교 중 <i></i> 정렬 완료</span></div>
         <div id="bars" class="bars" aria-label="정렬 막대 그래프"></div>
@@ -59,6 +63,7 @@
       </div>
     </section>
 
+    <!-- Python 메타데이터를 Jinja2로 렌더링한 복잡도 비교표 -->
     <section class="complexity-section">
       <div class="section-title"><p class="eyebrow">COMPLEXITY</p><h2>알고리즘 한눈에 비교</h2></div>
       <div class="table-wrap panel">
@@ -73,6 +78,7 @@
       </div>
     </section>
 
+    <!-- 실제 실행 시간 측정 결과를 Chart.js로 표시하는 영역 -->
     <section class="benchmark-section panel">
       <div class="benchmark-copy">
         <p class="eyebrow">REAL PERFORMANCE</p>
