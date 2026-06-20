@@ -7,7 +7,7 @@
 from random import randint
 from time import perf_counter
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request
 
 from sorting import ALGORITHM_INFO, SORTERS, sort
 
@@ -17,8 +17,15 @@ app = Flask(__name__)
 
 @app.get("/")
 def index():
-    """메인 화면에 알고리즘 메타데이터를 전달합니다."""
-    return render_template("index.html", algorithms=ALGORITHM_INFO)
+    """API 서버 상태와 Next.js 프런트엔드 주소를 반환합니다."""
+    return jsonify(
+        {
+            "service": "SORT LAB API",
+            "status": "ok",
+            "frontend": "http://localhost:3000",
+            "algorithms": list(SORTERS),
+        }
+    )
 
 
 @app.post("/api/sort")
