@@ -18,7 +18,7 @@ flowchart TB
     subgraph Browser["Browser"]
         UI["입력 컨트롤"]
         AN["애니메이션 엔진"]
-        CH["Chart.js"]
+        CH["Next.js Benchmark UI"]
     end
 
     subgraph Flask["Flask Application"]
@@ -41,13 +41,13 @@ flowchart TB
 
 ### 역할 분리
 
-- `app.py`: HTTP 입력 검증과 API 응답을 담당하는 Flask 어댑터
+- `app.py`: HTTP 입력 검증과 JSON API 응답을 담당하는 Flask 어댑터
 - `sorting/algorithms.py`: 웹 프레임워크와 독립적인 6개 정렬 구현
 - `sorting/models.py`: 정렬 결과와 시각화 단계 기록 모델
 - `sorting/registry.py`: 알고리즘 레지스트리와 공개 `sort()` API
-- `templates/index.html`: 화면 구조와 알고리즘 복잡도 표
-- `static/app.js`: 데이터 생성, API 호출, 단계 재생, 성능 차트
-- `static/style.css`: 막대 상태 색상, 레이아웃, 반응형 디자인
+- `frontend/src/app`: Next.js 홈, 실험실, 알고리즘별로 분리된 6개 사례 페이지
+- `frontend/src/components`: 정렬 재생, 도메인 사례, 벤치마크 컴포넌트
+- `frontend/src/data/use-cases.ts`: 알고리즘별 후보와 선정 사례 데이터
 
 ## 3. 공통 실행 모델
 
@@ -141,7 +141,7 @@ sequenceDiagram
 - `running`: 중복 실행을 막기 위해 버튼과 입력 컨트롤을 잠급니다.
 - `paused`: 재생 반복문을 유지한 채 사용자가 계속하기를 누를 때까지 기다립니다.
 - `runToken`: 새 데이터가 생성될 때 기존 실행을 무효화합니다. 오래된 비동기 반복문이 새 화면을 덮어쓰는 경쟁 상태를 방지합니다.
-- `chart`: 재측정 시 기존 Chart.js 인스턴스를 제거하고 새 그래프를 생성하는 데 사용합니다.
+- `BenchmarkPanel`: 측정 결과를 데이터 크기별 막대 셀로 렌더링합니다.
 
 ### 4.5 속도 설정
 
@@ -274,7 +274,7 @@ flowchart TD
 | `sort_api()` | 입력 검증 후 전체 정렬 단계 반환 |
 | `benchmark_api()` | 데이터 크기별 3회 평균 실행 시간 반환 |
 
-### Frontend (`static/app.js`)
+### Frontend (`frontend/src/components`)
 
 | 함수 | 역할 |
 |---|---|
@@ -283,7 +283,7 @@ flowchart TD
 | `setMetrics()` | 비교·교환·단계·상태 표시 갱신 |
 | `toggleControls()` | 실행 중 중복 요청을 막기 위해 컨트롤 활성화 상태 변경 |
 | `startSort()` | 정렬 API 호출 후 단계별 애니메이션 재생 |
-| `runBenchmark()` | 벤치마크 API 호출 후 Chart.js 선 그래프 생성 |
+| `BenchmarkPanel` | 벤치마크 API 호출 후 크기별 성능 표 생성 |
 
 ## 7. 정렬 요청 시퀀스
 
@@ -322,7 +322,7 @@ sequenceDiagram
     participant UI as Browser UI
     participant API as Flask /api/benchmark
     participant Engine as Python 정렬 엔진
-    participant Chart as Chart.js
+    participant Chart as Next.js Benchmark UI
 
     User->>UI: 성능 측정 클릭
     UI->>API: 알고리즘 목록 전송
